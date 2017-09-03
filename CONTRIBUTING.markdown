@@ -1,0 +1,1 @@
+If you wish to contribute, simply fork this repo and make a Pull Request. Be thorough in checking how the plugin works, so that your code is clean and interoperable, and please do your utmost to write clear and meaningful commit messages that reflect the changes or features you have added.
