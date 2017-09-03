@@ -25,7 +25,8 @@ endfunction
 " Section: HTML validate method
 
 function! HTML_Val(html)
-    if &ft != "html"
+    let validFTs = ["html", "php"]
+    if index(validFTs, &ft) == -1
         return
     endif
     echo "This is a HTML file"
