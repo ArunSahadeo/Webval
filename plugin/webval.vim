@@ -24,8 +24,7 @@ function! FindPHPSite(php)
         if statusCode != 200
             continue
         else
-            let s:php_site = PHPSite
-            return s:php_site
+            return PHPSite
         break
         endif
     endfor
@@ -55,7 +54,7 @@ function! HTML_Val(html, file)
     endif
     if &ft == "php"
         call FindPHPSite(file)
-        let file = system("wget -O new.html " . s:php_file . "/" . file)
+        let file = system("wget -O new.html " . PHPSite . "/" . file)
         return
     endif
     execute '!open ' . file
