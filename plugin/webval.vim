@@ -15,24 +15,27 @@ let g:loaded_webval = 1
 
 " Section: CSS validate method
 
-function! CSS_Val(css)
+function! CSS_Val(css, file)
+    let file = a:file
     if &ft != "css"
         return
     endif
-    echo "This is a CSS file"
+    echo "The filename is " . file
 endfunction
 
 " Section: HTML validate method
 
-function! HTML_Val(html)
+function! HTML_Val(html, file)
     let validFTs = ["html", "php"]
+    let file = a:file
     if index(validFTs, &ft) == -1
         return
     endif
-    echo "This is a HTML file"
+    echo "The filename is " . file
 endfunction
 
 let fileType = &ft
+let fileName = expand('%:t')
 
-command ValiCSS call CSS_Val(fileType)
-command ValiHTML call HTML_Val(fileType)
+command ValiCSS call CSS_Val(fileType, fileName)
+command ValiHTML call HTML_Val(fileType, fileName)
