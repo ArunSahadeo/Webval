@@ -15,8 +15,6 @@ let g:loaded_webval = 1
 
 " Section: Find PHP site
 
-let s:php_site = ""
-
 function! FindPHPSite(php)
     let PHPSites = systemlist("cat /etc/hosts | awk '!/adobe/ && /127.0.0.1/' | awk '{print $2}'")
     let file = a:php
@@ -27,6 +25,7 @@ function! FindPHPSite(php)
             continue
         else
             let s:php_site = PHPSite
+            return s:php_site
         break
         endif
     endfor
@@ -54,9 +53,11 @@ function! HTML_Val(html, file)
     if index(validFTs, &ft) == -1
         return
     endif
-    "if &ft == "php"
-    "    FindPHPSite()
-    "endif
+    if &ft == "php"
+        call FindPHPSite(file)
+        let file = system("wget -O new.html " . s:php_file . "/" . file)
+        return
+    endif
     execute '!open ' . file
 endfunction
 
