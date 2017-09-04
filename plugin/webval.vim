@@ -15,17 +15,20 @@ let g:loaded_webval = 1
 
 " Section: Find PHP site
 
+let s:php_site = ""
+
 function! FindPHPSite(php)
     let PHPSites = systemlist("cat /etc/hosts | awk '!/adobe/ && /127.0.0.1/' | awk '{print $2}'")
     let file = a:php
-    echo PHPSites
     " Get status code from site
-    let statusCode = {}
     for PHPSite in PHPSites
-        let statusCode = execute "! curl -I " . PHPSite . "/" . file . " | head -1 | grep -P '\d{3}'"
-        if statusCode != 404
-            echo PHPSite
+        let statusCode = system('curl -sI ' . PHPSite . '/' . file . ' | head -1 | grep -oP "\d{3}"')
+        if statusCode != 200
+            continue
+        else
+            let s:php_site = PHPSite
         break
+        endif
     endfor
 endfunction
 
