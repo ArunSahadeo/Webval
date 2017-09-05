@@ -66,7 +66,7 @@ function! HTML_Val(file, basename)
     if has('macunix')
         execute "!pbpaste > " . BaseName . ".html"
     elseif has('unix')
-        execute "!xclip -o -selection primary > " . BaseName . ".html"
+        execute "!xclip -o -selection clipboard > " . BaseName . ".html"
     endif
 endfunction
 
