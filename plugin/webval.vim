@@ -54,16 +54,21 @@ function! HTML_Val(html, file)
     endif
     if &ft == "php"
         let LAMPSite = FindPHPSite(file)
-        let fileRetrieval = system("wget -O new.html " . LAMPSite . "/" . file)
+        let BaseName = system("basename " . file . " .php")
+        system("wget -O " . BaseName . ".html " . LAMPSite . "/" . file)
         let fileContents = ""
         if has('macunix')
-            let fileContents = system("cat new.html | pbcopy")
+            let fileContents = system("cat " . BaseName . ".html | pbcopy && rm " . BaseName . ".html")
         elseif has('unix')
-            let fileContents = system("cat new.html | xclip")
+            let fileContents = system("cat " . BaseName . ".html | xclip && rm " . BaseName . ".html")
         endif
         let s:htmlFile = fileContents 
     endif
-    execute '!open new.html'
+    if has('macunix')
+        execute "! pbpaste > amande.html"
+    elseif has('unix')
+        execute "! xclip -o > amande.html"
+    endif
 endfunction
 
 let fileType = &ft
@@ -71,4 +76,3 @@ let fileName = expand('%:t')
 
 command ValiCSS call CSS_Val(fileType, fileName)
 command ValiHTML call HTML_Val(fileType, fileName)
-command ValiPHP call FindPHPSite(fileName)
