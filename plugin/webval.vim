@@ -56,7 +56,7 @@ function! HTML_Val(file, basename)
     endif
     if &ft == "php"
         let LAMPSite = FindPHPSite(file)
-        execute "!wget -O ". BaseName . ".php " . &LAMPSite . "/". &file
+        execute "!wget -O ". BaseName . ".php " . LAMPSite . "/". file
         if has('macunix')
             execute "cat " . BaseName . ".html | pbcopy && rm " . BaseName . ".html"
         elseif has('unix')
