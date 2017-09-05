@@ -23,16 +23,17 @@ function! FindPHPSite(php)
         let statusCode = system('curl -sI ' . PHPSite . '/' . file . ' | head -1 | grep -oP "\d{3}"')
         if statusCode != 200
             continue
-        else
+        elseif statusCode == 200
             return PHPSite
-        break
+        else
+            continue
         endif
     endfor
 endfunction
 
 " Section: CSS validate method
 
-function! CSS_Val(css, file)
+function! CSS_Val(file)
     let file = a:file
     if &ft != "css"
         return
@@ -46,33 +47,31 @@ endfunction
 
 " Section: HTML validate method
 
-function! HTML_Val(html, file)
+function! HTML_Val(file, basename)
     let validFTs = ["html", "htm", "php"]
     let file = a:file
+    let BaseName = a:basename
     if index(validFTs, &ft) == -1
         return
     endif
     if &ft == "php"
         let LAMPSite = FindPHPSite(file)
-        let BaseName = system("basename " . file . " .php")
-        system("wget -O " . BaseName . ".html " . LAMPSite . "/" . file)
-        let fileContents = ""
+        execute "!wget -O ". BaseName . ".php " . &LAMPSite . "/". &file
         if has('macunix')
-            let fileContents = system("cat " . BaseName . ".html | pbcopy && rm " . BaseName . ".html")
+            execute "cat " . BaseName . ".html | pbcopy && rm " . BaseName . ".html"
         elseif has('unix')
-            let fileContents = system("cat " . BaseName . ".html | xclip && rm " . BaseName . ".html")
+            execute "cat " . BaseName . ".html | xclip && rm " . BaseName . ".html"
         endif
-        let s:htmlFile = fileContents 
     endif
     if has('macunix')
-        execute "!pbpaste > " . BaseName. ".html"
+        execute "!pbpaste > " . BaseName . ".html"
     elseif has('unix')
-        execute "!pbpaste > " . BaseName. ".html"
+        execute "!xclip -o -selection primary > " . BaseName . ".html"
     endif
 endfunction
 
-let fileType = &ft
 let fileName = expand('%:t')
+let BaseName = expand('%:r')
 
-command ValiCSS call CSS_Val(fileType, fileName)
-command ValiHTML call HTML_Val(fileType, fileName)
+command ValiCSS call CSS_Val(fileName)
+command ValiHTML call HTML_Val(fileName, BaseName)
