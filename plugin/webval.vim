@@ -65,9 +65,9 @@ function! HTML_Val(html, file)
         let s:htmlFile = fileContents 
     endif
     if has('macunix')
-        execute "! pbpaste > amande.html"
+        execute "!pbpaste > " . BaseName. ".html"
     elseif has('unix')
-        execute "! xclip -o > amande.html"
+        execute "!pbpaste > " . BaseName. ".html"
     endif
 endfunction
 
