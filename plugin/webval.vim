@@ -53,11 +53,17 @@ function! HTML_Val(html, file)
         return
     endif
     if &ft == "php"
-        call FindPHPSite(file)
-        let file = system("wget -O new.html " . PHPSite . "/" . file)
-        return
+        let LAMPSite = FindPHPSite(file)
+        let fileRetrieval = system("wget -O new.html " . LAMPSite . "/" . file)
+        let fileContents = ""
+        if has('macunix')
+            let fileContents = system("cat new.html | pbcopy")
+        elseif has('unix')
+            let fileContents = system("cat new.html | xclip")
+        endif
+        let s:htmlFile = fileContents 
     endif
-    execute '!open ' . file
+    execute '!open new.html'
 endfunction
 
 let fileType = &ft
