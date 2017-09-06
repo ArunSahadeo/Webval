@@ -28,3 +28,5 @@ set rtp+=~/.vim/
 runtime /path/to/webval.vim
 
 ``
+
+Note: you will also need `jq` installed and available on your `$PATH` variable.
