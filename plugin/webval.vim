@@ -63,14 +63,11 @@ function! HTML_Val(file, basename)
     "let HTMLErrors = []
     "execute add(HTMLErrors, HTMLErrorOutput)
     let HTMLErrorLines = systemlist("jq '.messages[] | select( .type | startswith(\"error\"))|.lastLine'" . BaseName . ".json")
-    if len(HTMLErrors) > 0
-        let counter = 0
-        for HTMLError in HTMLErrors
-            execute setqflist([{'bufnr': bufnr(''), 'lnum': HTMLErrorLines[counter], 'text': HTMLError }], 'a')
-            let counter += 1
-        endfor
-    "echo HTMLErrorLines
-    endif
+     if len(HTMLErrors) > 0
+         for HTMLError in HTMLErrors
+             cexpr HTMLError
+         endfor
+     endif
 endfunction
 
 let fileName = expand('%:t')
