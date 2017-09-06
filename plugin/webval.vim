@@ -57,17 +57,12 @@ function! HTML_Val(file, basename)
     if &ft == "php"
         let LAMPSite = FindPHPSite(file)
         execute "!wget -O ". BaseName . ".html " . LAMPSite . "/". file
-        if has('macunix')
-            execute "!bash -c 'cat " . BaseName . ".html | pbcopy && rm " . BaseName . ".html'"
-        elseif has('unix')
-            execute "!bash -c 'cat " . BaseName . ".html | xclip && rm " . BaseName . ".html'"
-        endif
     endif
-    if has('macunix')
-        execute "!pbpaste > " . BaseName . ".html"
-    elseif has('unix')
-        execute "!xclip -o -selection clipboard > " . BaseName . ".html"
-    endif
+    execute '!curl -H "Content-Type: text/html; charset=utf-8" --data-binary @' . BaseName . '.html "https://validator.w3.org/nu/?out=json" > ' . BaseName . '.json'
+    let HTMLErrors = systemlist("jq '.messages[] | select( .type | startswith(\"error\"))|.message' < " . BaseName . ".json")
+    let HTMLErrorLines = systemlist("jq '.messages[] | select( .type | startswith(\"error\"))|.lastLine'" . BaseName . ".json")
+    echo HTMLErrors
+    "echo HTMLErrorLines
 endfunction
 
 let fileName = expand('%:t')
