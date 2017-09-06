@@ -60,9 +60,17 @@ function! HTML_Val(file, basename)
     endif
     execute '!curl -H "Content-Type: text/html; charset=utf-8" --data-binary @' . BaseName . '.html "https://validator.w3.org/nu/?out=json" > ' . BaseName . '.json'
     let HTMLErrors = systemlist("jq '.messages[] | select( .type | startswith(\"error\"))|.message' < " . BaseName . ".json")
+    "let HTMLErrors = []
+    "execute add(HTMLErrors, HTMLErrorOutput)
     let HTMLErrorLines = systemlist("jq '.messages[] | select( .type | startswith(\"error\"))|.lastLine'" . BaseName . ".json")
-    echo HTMLErrors
+    if len(HTMLErrors) > 0
+        let counter = 0
+        for HTMLError in HTMLErrors
+            execute setqflist([{'bufnr': bufnr(''), 'lnum': HTMLErrorLines[counter], 'text': HTMLError }], 'a')
+            let counter += 1
+        endfor
     "echo HTMLErrorLines
+    endif
 endfunction
 
 let fileName = expand('%:t')
