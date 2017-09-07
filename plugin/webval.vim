@@ -56,38 +56,30 @@ function! HTML_Val(file, basename)
         return
     endif
     if &ft == "php"
-        let commonPHPFiles = ["index.php", "header.php", "footer.php", "contact.php"]
         let currentPath = getcwd()
+        let pathComponent = ""
         if match(currentPath, "wp-content") != -1
             echoerr "Sorry, we do not support Wordpress"
             return
         endif
-        let pathComponent = ""
-        if index(commonPHPFiles, file) != -1
-            let currentPath = getcwd()
-            echo currentPath
-            let projectRoot = ""
+        let isProjectRoot = system("bash -c '[ -f " . currentPath . "/index.php ] && echo \"true\" || echo \"false\" | xargs'")
+        if match(isProjectRoot, "true") == -1
             let containingFolder = system("basename $(pwd)")
-            let isProjectRoot = system("bash -c '[ -f " . currentPath . "/index.php ] && echo \"true\" || echo \"false\" | xargs'")
-            if match(isProjectRoot, "true") == -1
-                let projectRoot = system("bash -c 'findRoot=`[ -f index.php ] && echo \"true\" || echo \"false\"; while [ $findRoot == \"false\" ]; do cd .. if [ -f index.php ]; then echo $(pwd); break; fi; if [ $(pwd) == \"/\" ]; then break; fi;  done' ")
-                if match(projectRoot, "wp-content") != -1
-                    echoerr "Sorry, this plugin is not compatible with WordPress"
-                    return
-                endif
-                let pathToFile = system("find " . projectRoot . " -type d -name '" . containingFolder . "'") 
-                let pathComponent = system("echo " . pathToFile . " | cut -d '.' -f 2")
-            else
-                let projectRoot = currentPath
-            endif
+            let projectRoot = system("bash -c 'findRoot=`[ -f index.php ] && echo \"true\" || echo \"false\"; while [ $findRoot == \"false\" ]; do cd .. if [ -f index.php ]; then echo $(pwd); break; fi; if [ $(pwd) == \"/\" ]; then break; fi;  done' ")
+            let pathToFile = system("find " . projectRoot . " -type d -name '" . containingFolder . "'") 
+            let pathComponent = system("echo " . pathToFile . " | sed 's/^.//")
+            let LAMPSite = system('targetVHost=""; for file in /etc/apache2/sites-enabled/*.conf; do cat "$file"; if grep "' . projectRoot . '"; then targetVHost=$file; fi; done; localSite=`cat $targetVHost | awk "/ServerAlias/"`; localSite=`echo $localSite | sed -e "s/^ServerAlias //"`; echo $localSite;"')
         else
             let LAMPSite = FindPHPSite(file)
         endif
-        if len(LAMPSite) > 0
+        if len(LAMPSite) < 0
             execute "!wget -O ". BaseName . ".html " . LAMPSite . "/". file
         else
+            echo LAMPSite . "Hello"
             return
         endif
+        echo pathComponent
+        return
     endif
     execute '!curl -H "Content-Type: text/html; charset=utf-8" --data-binary @' . BaseName . '.html "https://validator.w3.org/nu/?out=json" > ' . BaseName . '.json'
     let HTMLErrors = systemlist("jq '.messages[] | select( .type | startswith(\"error\"))|.message' < " . BaseName . ".json")
