@@ -57,15 +57,22 @@ function! HTML_Val(file, basename)
     endif
     if &ft == "php"
         let commonPHPFiles = ["index.php", "header.php", "footer.php", "contact.php"]
+        let currentPath = getcwd()
+        if match(currentPath, "wp-content") != -1
+            echoerr "Sorry, we do not support Wordpress"
+            return
+        endif
         let pathComponent = ""
         if index(commonPHPFiles, file) != -1
             let currentPath = getcwd()
+            echo currentPath
             let projectRoot = ""
             let containingFolder = system("basename $(pwd)")
             let isProjectRoot = system("bash -c '[ -f " . currentPath . "/index.php ] && echo \"true\" || echo \"false\" | xargs'")
             if match(isProjectRoot, "true") == -1
                 let projectRoot = system("bash -c 'findRoot=`[ -f index.php ] && echo \"true\" || echo \"false\"; while [ $findRoot == \"false\" ]; do cd .. if [ -f index.php ]; then echo $(pwd); break; fi; if [ $(pwd) == \"/\" ]; then break; fi;  done' ")
                 if match(projectRoot, "wp-content") != -1
+                    echoerr "Sorry, this plugin is not compatible with WordPress"
                     return
                 endif
                 let pathToFile = system("find " . projectRoot . " -type d -name '" . containingFolder . "'") 
@@ -84,10 +91,12 @@ function! HTML_Val(file, basename)
     endif
     execute '!curl -H "Content-Type: text/html; charset=utf-8" --data-binary @' . BaseName . '.html "https://validator.w3.org/nu/?out=json" > ' . BaseName . '.json'
     let HTMLErrors = systemlist("jq '.messages[] | select( .type | startswith(\"error\"))|.message' < " . BaseName . ".json")
-    let HTMLErrorLines = systemlist("jq '.messages[] | select( .type | startswith(\"error\"))|.lastLine'" . BaseName . ".json")
+    let HTMLErrorLines = systemlist("jq '.messages[] | select( .type | startswith(\"error\"))|.lastLine' < " . BaseName . ".json")
+    let counter = 0
      if len(HTMLErrors) > 0
          for HTMLError in HTMLErrors
-             cexpr HTMLError
+             echoerr "Found on line " . HTMLErrorLines[counter] . " " . HTMLError
+             let counter += 1
          endfor
      endif
 endfunction
