@@ -59,14 +59,13 @@ function! HTML_Val(file, basename)
         let commonPHPFiles = ["index.php", "header.php", "footer.php", "contact.php"]
         if index(commonPHPFiles, file) != -1
             let currentPath = getcwd()
+            let projectRoot = ""
             echo currentPath
             let isProjectRoot = system("bash -c '[ -f " . currentPath . "/index.php ] && echo \"true\" || echo \"false\" | xargs'")
-            if match(isProjectRoot, "true") != -1
-                 echo "Hello"
-            elseif match(isProjectRoot, "false") != -1
-                 echo "No hello"
+            if match(isProjectRoot, "true") == -1
+                let projectRoot = system("bash -c 'findRoot=`[ -f index.php ] && echo \"true\" || echo \"false\"; while [ $findRoot == \"false\" ]; do cd .. if [ $findRoot == \"true\" ] echo $(pwd) fi; done' ") 
             else
-                 echo "No"
+                let projectRoot = currentPath
             endif
         else
             let LAMPSite = FindPHPSite(file)
