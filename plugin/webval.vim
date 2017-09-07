@@ -60,10 +60,14 @@ function! HTML_Val(file, basename)
         if index(commonPHPFiles, file) != -1
             let currentPath = getcwd()
             let projectRoot = ""
-            echo currentPath
             let isProjectRoot = system("bash -c '[ -f " . currentPath . "/index.php ] && echo \"true\" || echo \"false\" | xargs'")
             if match(isProjectRoot, "true") == -1
-                let projectRoot = system("bash -c 'findRoot=`[ -f index.php ] && echo \"true\" || echo \"false\"; while [ $findRoot == \"false\" ]; do cd .. if [ -f index.php ]; then echo $(pwd); break; fi; done' ") 
+                let projectRoot = system("bash -c 'findRoot=`[ -f index.php ] && echo \"true\" || echo \"false\"; while [ $findRoot == \"false\" ]; do cd .. if [ -f index.php ]; then echo $(pwd); break; fi; if [ $(pwd) == \"/\" ]; then break; fi;  done' ")
+                if match(projectRoot, "wp-content") != -1
+                    let ThemeWP = system("bash -c 'basename " . projectRoot . "'")
+                    let projectRoot = system("bash -c 'cd " . projectRoot . " && cd ../../.. && echo $(pwd)'")
+                    let ThemeWP = system("find " . projectRoot . " -type d -name '" . ThemeWP . "'")
+                endif
             else
                 let projectRoot = currentPath
             endif
