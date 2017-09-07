@@ -51,12 +51,31 @@ function! HTML_Val(file, basename)
     let validFTs = ["html", "htm", "php"]
     let file = a:file
     let BaseName = a:basename
+    let LAMPSite = ""
     if index(validFTs, &ft) == -1
         return
     endif
     if &ft == "php"
-        let LAMPSite = FindPHPSite(file)
-        execute "!wget -O ". BaseName . ".html " . LAMPSite . "/". file
+        let commonPHPFiles = ["index.php", "header.php", "footer.php", "contact.php"]
+        if index(commonPHPFiles, file) != -1
+            let currentPath = getcwd()
+            echo currentPath
+            let isProjectRoot = system("bash -c '[ -f " . currentPath . "/index.php ] && echo \"true\" || echo \"false\" | xargs'")
+            if match(isProjectRoot, "true") != -1
+                 echo "Hello"
+            elseif match(isProjectRoot, "false") != -1
+                 echo "No hello"
+            else
+                 echo "No"
+            endif
+        else
+            let LAMPSite = FindPHPSite(file)
+        endif
+        if len(LAMPSite) > 0
+            execute "!wget -O ". BaseName . ".html " . LAMPSite . "/". file
+        else
+            return
+        endif
     endif
     execute '!curl -H "Content-Type: text/html; charset=utf-8" --data-binary @' . BaseName . '.html "https://validator.w3.org/nu/?out=json" > ' . BaseName . '.json'
     let HTMLErrors = systemlist("jq '.messages[] | select( .type | startswith(\"error\"))|.message' < " . BaseName . ".json")
