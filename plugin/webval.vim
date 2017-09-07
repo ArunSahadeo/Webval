@@ -57,15 +57,19 @@ function! HTML_Val(file, basename)
     endif
     if &ft == "php"
         let commonPHPFiles = ["index.php", "header.php", "footer.php", "contact.php"]
+        let pathComponent = ""
         if index(commonPHPFiles, file) != -1
             let currentPath = getcwd()
             let projectRoot = ""
+            let containingFolder = system("basename $(pwd)")
             let isProjectRoot = system("bash -c '[ -f " . currentPath . "/index.php ] && echo \"true\" || echo \"false\" | xargs'")
             if match(isProjectRoot, "true") == -1
                 let projectRoot = system("bash -c 'findRoot=`[ -f index.php ] && echo \"true\" || echo \"false\"; while [ $findRoot == \"false\" ]; do cd .. if [ -f index.php ]; then echo $(pwd); break; fi; if [ $(pwd) == \"/\" ]; then break; fi;  done' ")
                 if match(projectRoot, "wp-content") != -1
                     return
                 endif
+                let pathToFile = system("find " . projectRoot . " -type d -name '" . containingFolder . "'") 
+                let pathComponent = system("echo " . pathToFile . " | cut -d '.' -f 2")
             else
                 let projectRoot = currentPath
             endif
