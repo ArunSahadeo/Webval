@@ -63,7 +63,7 @@ function! HTML_Val(file, basename)
             echo currentPath
             let isProjectRoot = system("bash -c '[ -f " . currentPath . "/index.php ] && echo \"true\" || echo \"false\" | xargs'")
             if match(isProjectRoot, "true") == -1
-                let projectRoot = system("bash -c 'findRoot=`[ -f index.php ] && echo \"true\" || echo \"false\"; while [ $findRoot == \"false\" ]; do cd .. if [ $findRoot == \"true\" ] echo $(pwd) fi; done' ") 
+                let projectRoot = system("bash -c 'findRoot=`[ -f index.php ] && echo \"true\" || echo \"false\"; while [ $findRoot == \"false\" ]; do cd .. if [ -f index.php ]; then echo $(pwd); break; fi; done' ") 
             else
                 let projectRoot = currentPath
             endif
