@@ -72,8 +72,11 @@ function! HTML_Val(file, basename)
         else
             let LAMPSite = FindPHPSite(file)
         endif
-        if len(LAMPSite) < 0
-            execute "!wget -O ". BaseName . ".html " . LAMPSite . "/". file
+        if len(LAMPSite) > 0
+            if !len(pathComponent) > 0
+                execute "!wget -O ". BaseName . ".html " . LAMPSite . "/" file
+            else
+                execute "!wget -O " . BaseName . ".html " . LAMPSite . pathComponent . "/" . file
         else
             echo LAMPSite . "Hello"
             return
