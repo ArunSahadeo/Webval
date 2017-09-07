@@ -64,9 +64,7 @@ function! HTML_Val(file, basename)
             if match(isProjectRoot, "true") == -1
                 let projectRoot = system("bash -c 'findRoot=`[ -f index.php ] && echo \"true\" || echo \"false\"; while [ $findRoot == \"false\" ]; do cd .. if [ -f index.php ]; then echo $(pwd); break; fi; if [ $(pwd) == \"/\" ]; then break; fi;  done' ")
                 if match(projectRoot, "wp-content") != -1
-                    let ThemeWP = system("bash -c 'basename " . projectRoot . "'")
-                    let projectRoot = system("bash -c 'cd " . projectRoot . " && cd ../../.. && echo $(pwd)'")
-                    let ThemeWP = system("find " . projectRoot . " -type d -name '" . ThemeWP . "'")
+                    return
                 endif
             else
                 let projectRoot = currentPath
