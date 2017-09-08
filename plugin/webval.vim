@@ -68,7 +68,7 @@ function! HTML_Val(file, basename)
             let projectRoot = system("bash -c 'findRoot=`[ -f index.php ] && echo \"true\" || echo \"false\"; while [ $findRoot == \"false\" ]; do cd .. if [ -f index.php ]; then echo $(pwd); break; fi; if [ $(pwd) == \"/\" ]; then break; fi;  done' ")
             let pathToFile = system("find " . projectRoot . " -type d -name '" . containingFolder . "'") 
             let pathComponent = system("echo " . pathToFile . " | sed 's/^.//")
-            let LAMPSite = system('targetVHost=""; for file in /etc/apache2/sites-enabled/*.conf; do cat "$file"; if grep "' . projectRoot . '"; then targetVHost=$file; fi; done; localSite=`cat $targetVHost | awk "/ServerAlias/"`; localSite=`echo $localSite | sed -e "s/^ServerAlias //"`; echo $localSite;"')
+            let LAMPSite = system('for file in /etc/apache2/sites-enabled/*.conf; do cat "$file"; if grep "' . projectRoot . '"; then cat "$file" | awk "/ServerAlias/" | sed -e "s/ServerAlias //" | xargs; fi; done;"')
         else
             let LAMPSite = FindPHPSite(file)
         endif
@@ -77,8 +77,6 @@ function! HTML_Val(file, basename)
                 execute "!wget -O ". BaseName . ".html " . LAMPSite . "/" file
             else
                 execute "!wget -O " . BaseName . ".html " . LAMPSite . pathComponent . "/" . file
-        else
-            echo LAMPSite . "Hello"
             return
         endif
         echo pathComponent
