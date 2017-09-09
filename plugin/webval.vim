@@ -68,19 +68,15 @@ function! HTML_Val(file, basename)
             let projectRoot = system("bash -c 'findRoot=`[ -f index.php ] && echo \"true\" || echo \"false\"; while [ $findRoot == \"false\" ]; do cd .. if [ -f index.php ]; then echo $(pwd); break; fi; if [ $(pwd) == \"/\" ]; then break; fi;  done' ")
             let pathToFile = system("find " . projectRoot . " -type d -name '" . containingFolder . "'") 
             let pathComponent = system("echo " . pathToFile . " | sed 's/^.//")
-            let LAMPSite = system('for file in /etc/apache2/sites-enabled/*.conf; do cat "$file"; if grep "' . projectRoot . '"; then cat "$file" | awk "/ServerAlias/" | sed -e "s/ServerAlias //" | xargs; fi; done;"')
+            let LAMPSite = system('for file in /etc/apache2/sites-enabled/*.conf; do cat "$file"; if grep "' . projectRoot . '"; then cat "$file" | awk "/ServerAlias/" | sed -e "s/ServerAlias //" | xargs; break; fi; done;"')
         else
             let LAMPSite = FindPHPSite(file)
         endif
-        if len(LAMPSite) > 0
-            if !len(pathComponent) > 0
-                execute "!wget -O ". BaseName . ".html " . LAMPSite . "/" file
-            else
-                execute "!wget -O " . BaseName . ".html " . LAMPSite . pathComponent . "/" . file
-            return
+        if len(LAMPSite) > 0 && len(pathComponent) > 0
+            execute "!wget -O " . BaseName . ".html" . LAMPSite . pathComponent . "/" . file
+        else
+            execute "!wget -O " . BaseName . ".html " . LAMPSite . "/" . file
         endif
-        echo pathComponent
-        return
     endif
     execute '!curl -H "Content-Type: text/html; charset=utf-8" --data-binary @' . BaseName . '.html "https://validator.w3.org/nu/?out=json" > ' . BaseName . '.json'
     let HTMLErrors = systemlist("jq '.messages[] | select( .type | startswith(\"error\"))|.message' < " . BaseName . ".json")
