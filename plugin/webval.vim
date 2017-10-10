@@ -71,10 +71,11 @@ function! HTML_Val(file, basename)
         let isProjectRoot = system("bash -c '[ -f " . currentPath . "/index.php ] && echo \"true\" || echo \"false\" | xargs'")
         if match(isProjectRoot, "true") == -1
             let containingFolder = system("basename $(pwd)")
-            let projectRoot = system("bash -c 'findRoot=`[ -f index.php ] && echo \"true\" || echo \"false\"; while [ $findRoot == \"false\" ]; do cd .. if [ -f index.php ]; then echo $(pwd); break; fi; if [ $(pwd) == \"/\" ]; then break; fi;  done' ")
+            let projectRoot = system("bash -c 'findRoot=`[ -f index.php ] && echo \"true\" || echo \"false\"`; while [ $findRoot == \"false\" ]; do cd ..; if [ -f index.php ]; then echo $(pwd); break; fi; if [ $(pwd) == \"/\" ]; then break; fi; done' ")
             let pathToFile = system("find " . projectRoot . " -type d -name '" . containingFolder . "'") 
             let pathComponent = system("echo " . pathToFile . " | sed 's/^.//")
-            let LAMPSite = system('for file in /etc/apache2/sites-enabled/*.conf; do cat "$file"; if grep "' . projectRoot . '"; then cat "$file" | awk "/ServerAlias/" | sed -e "s/ServerAlias //" | xargs; break; fi; done;"')
+            :put =projectRoot
+            let LAMPSite = "http://" . system("for file in /etc/apache2/sites-enabled/*.conf; do cat '$file'; if grep '" . projectRoot . "'; then sed -e 's/ServerAlias //Ip' '$file'; break; fi; done;'")
         else
             let LAMPSite = FindPHPSite(file)
         endif
