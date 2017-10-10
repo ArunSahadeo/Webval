@@ -33,16 +33,13 @@ endfunction
 
 " Section: CSS validate method
 
-function! CSS_Val(file)
+function! CSS_Val(file, basename)
     let file = a:file
+    let basename = a:basename
     if &ft != "css"
         return
     endif
-    if has('macunix')
-        execute '! bash -c "cat ' . file . ' | pbcopy "'
-    else
-        execute '! bash -c "cat ' . file . ' | xclip "'
-    endif
+    execute "!curl -sF \"file=@" . file . "; type=text/css\" -F output=json warning=0 profile=css3 \"https://jigsaw.w3.org/css-validator/validator\" > " . basename . ".json" 
 endfunction
 
 " Section: HTML validate method
@@ -93,5 +90,5 @@ endfunction
 let fileName = expand('%:t')
 let BaseName = expand('%:r')
 
-command ValiCSS call CSS_Val(fileName)
+command ValiCSS call CSS_Val(fileName, BaseName)
 command ValiHTML call HTML_Val(fileName, BaseName)
