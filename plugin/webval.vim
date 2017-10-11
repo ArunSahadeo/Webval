@@ -13,6 +13,12 @@ endif
 
 let g:loaded_webval = 1
 
+" General function: Strip newline
+
+function! Strip(input_string)
+    return substitute(a:input_string, "\n$", "", "")
+endfunction
+
 " Section: Find PHP site
 
 function! FindPHPSite(php)
@@ -72,9 +78,9 @@ function! HTML_Val(file, basename)
         if match(isProjectRoot, "true") == -1
             let containingFolder = system("basename $(pwd)")
             let projectRoot = system("bash -c 'findRoot=`[ -f index.php ] && echo \"true\" || echo \"false\"`; while [ $findRoot == \"false\" ]; do cd ..; if [ -f index.php ]; then echo $(pwd); break; fi; if [ $(pwd) == \"/\" ]; then break; fi; done' ")
-            let pathToFile = system("find " . projectRoot . " -type d -name '" . containingFolder . "'") 
+            let pathToFile = system("siteFolder='" . projectRoot ."' && siteFolder=`echo ${siteFolder} | sed 's/.\{2\}$//'` && find -type d -name $siteFolder") 
             let pathComponent = system("echo " . pathToFile . " | sed 's/^.//")
-            :put =projectRoot
+            put: =pathComponent
             let LAMPSite = "http://" . system("for file in /etc/apache2/sites-enabled/*.conf; do cat '$file'; if grep '" . projectRoot . "'; then sed -e 's/ServerAlias //Ip' '$file'; break; fi; done;'")
         else
             let LAMPSite = FindPHPSite(file)
