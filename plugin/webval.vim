@@ -77,11 +77,11 @@ function! HTML_Val(file, basename)
         let isProjectRoot = system("bash -c '[ -f " . currentPath . "/index.php ] && echo \"true\" || echo \"false\" | xargs'")
         if match(isProjectRoot, "true") == -1
             let containingFolder = system("basename $(pwd)")
-            let projectRoot = system("bash -c 'findRoot=`[ -f index.php ] && echo \"true\" || echo \"false\"`; while [ $findRoot == \"false\" ]; do cd ..; if [ -f index.php ]; then echo $(pwd); break; fi; if [ $(pwd) == \"/\" ]; then break; fi; done' ")
-            let pathToFile = system("siteFolder='" . projectRoot ."' && siteFolder=`echo ${siteFolder} | sed 's/.\{2\}$//'` && find -type d -name $siteFolder") 
-            let pathComponent = system("echo " . pathToFile . " | sed 's/^.//")
-            put: =pathComponent
-            let LAMPSite = "http://" . system("for file in /etc/apache2/sites-enabled/*.conf; do cat '$file'; if grep '" . projectRoot . "'; then sed -e 's/ServerAlias //Ip' '$file'; break; fi; done;'")
+            let projectRoot = system("bash -c 'findRoot=`[ -f index.php ] && echo \"true\" || echo \"false\"`; while [ $findRoot == \"false\" ]; do cd ..; if [ -f index.php ]; then echo $(pwd) | tr -d \"\r\"; break; fi; if [ $(pwd) == \"/\" ]; then break; fi; done' ")
+            let pathComponent = system("echo " . projectRoot . " | sed 's/^.//")
+            let LAMPSite = "http://" . system("for file in /etc/apache2/sites-enabled/*.conf; do printf \"%s\" \"<${file})\"; if grep '" . projectRoot . "'; then ServerAlias=`sed -n 's/ServerAlias /p'` '$file'; echo $serverAlias | cut -d \" \" | -f2; break; fi; done;'")
+            :put =LAMPSite
+            return
         else
             let LAMPSite = FindPHPSite(file)
         endif
