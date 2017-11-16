@@ -60,7 +60,7 @@ endfunction
 " Section: HTML validate method
 
 function! HTML_Val(file, basename)
-    let validFTs = ["html", "htm", "php"]
+    let validFTs = ["html", "htm", "xhtml", "php"]
     let file = a:file
     let BaseName = a:basename
     let LAMPSite = ""
