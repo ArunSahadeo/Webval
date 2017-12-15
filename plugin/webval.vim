@@ -13,10 +13,8 @@ endif
 
 let g:loaded_webval = 1
 
-" General function: Strip newline
-
 function! Strip(input_string)
-    return substitute(a:input_string, "\n$", "", "")
+    return substitute(a:input_string, '^\s*\(.\{-}\)\s*$', '\1', '')
 endfunction
 
 " Section: Find PHP site
@@ -68,27 +66,25 @@ function! HTML_Val(file, basename)
         return
     endif
     if &ft == "php"
+        let commonBaseNames = ["index", "contact"] 
         let currentPath = getcwd()
         let pathComponent = ""
         if match(currentPath, "wp-content") != -1
             echoerr "Sorry, we do not support Wordpress"
             return
         endif
-        let isProjectRoot = system("bash -c '[ -f " . currentPath . "/index.php ] && echo \"true\" || echo \"false\" | xargs'")
-        if match(isProjectRoot, "true") == -1
-            let containingFolder = system("basename $(pwd)")
-            let projectRoot = system("bash -c 'findRoot=`[ -f index.php ] && echo \"true\" || echo \"false\"`; while [ $findRoot == \"false\" ]; do cd ..; if [ -f index.php ]; then echo $(pwd) | tr -d \"\r\"; break; fi; if [ $(pwd) == \"/\" ]; then break; fi; done' ")
-            let pathComponent = system("echo " . projectRoot . " | sed 's/^.//")
-            let LAMPSite = "http://" . system("for file in /etc/apache2/sites-enabled/*.conf; do printf \"%s\" \"<${file})\"; if grep '" . projectRoot . "'; then ServerAlias=`sed -n 's/ServerAlias /p'` '$file'; echo $serverAlias | cut -d \" \" | -f2; break; fi; done;'")
-            :put =LAMPSite
-            return
+        
+        if index(commonBaseNames, BaseName) != -1
+            let serverAlias = system("./vhost-find.sh | tail -n1")
+            let LAMPSite = "http://" . serverAlias 
         else
             let LAMPSite = FindPHPSite(file)
         endif
-        if len(LAMPSite) > 0 && len(pathComponent) > 0
-            execute "!wget -O " . BaseName . ".html" . LAMPSite . pathComponent . "/" . file
-        else
+
+        if len(LAMPSite) > 0
             execute "!wget -O " . BaseName . ".html " . LAMPSite . "/" . file
+        else
+            return
         endif
     endif
     execute '!curl -H "Content-Type: text/html; charset=utf-8" --data-binary @' . BaseName . '.html "https://validator.w3.org/nu/?out=json" > ' . BaseName . '.json'
@@ -100,6 +96,8 @@ function! HTML_Val(file, basename)
              echoerr "Found on line " . HTMLErrorLines[counter] . " " . HTMLError
              let counter += 1
          endfor
+     else
+         echom "You have no errors."
      endif
 endfunction
 
