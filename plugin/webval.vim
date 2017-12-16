@@ -71,8 +71,8 @@ function! HTML_Val(file, basename)
         endif
         
         if index(commonBaseNames, BaseName) != -1
-            let serverAlias = system("./vhost-find.sh | tail -n1")
-            let LAMPSite = "http://" . serverAlias 
+            let serverAlias = system("bash -c 'for file in /etc/apache2/sites-enabled/*.conf; do cat \"$file\"; if grep \"" . currentPath . "\" \"$file\"; then serverAlias=`sed -n \"/ServerAlias /p\" \"$file\"`; echo $serverAlias | cut -d \" \" -f2; break; fi; done;' | tail -n1")
+            let LAMPSite = "http://" . serverAlias
         else
             let LAMPSite = FindPHPSite(file)
         endif
