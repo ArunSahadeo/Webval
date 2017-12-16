@@ -13,10 +13,6 @@ endif
 
 let g:loaded_webval = 1
 
-function! Strip(input_string)
-    return substitute(a:input_string, '^\s*\(.\{-}\)\s*$', '\1', '')
-endfunction
-
 " Section: Find PHP site
 
 function! FindPHPSite(php)
