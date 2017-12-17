@@ -48,6 +48,8 @@ function! CSS_Val(file, basename)
              echoerr "Found on line " . CSSErrorLines[counter] . " " . CSSError
              let counter += 1
          endfor
+     else
+         echom "You have no errors."
      endif
 endfunction
 
