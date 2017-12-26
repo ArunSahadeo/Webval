@@ -37,7 +37,6 @@ function! CSS_Val(file, basename)
     let file = a:file
     let basename = a:basename
     if &ft != "css"
-        echoerr "This is not valid CSS"
         return
     endif
     execute "!curl -sF \"file=@" . file . "; type=text/css\" -F output=json warning=0 profile=css3 \"https://jigsaw.w3.org/css-validator/validator\" > " . basename . ".json"
@@ -62,7 +61,6 @@ function! HTML_Val(file, basename)
     let BaseName = a:basename
     let LAMPSite = ""
     if index(validFTs, &ft) == -1
-        echoerr "This is not valid HTML"
         return
     endif
     if &ft == "php"
@@ -88,8 +86,8 @@ function! HTML_Val(file, basename)
         endif
     endif
     execute '!curl -H "Content-Type: text/html; charset=utf-8" --data-binary @' . BaseName . '.html "https://validator.w3.org/nu/?out=json" > ' . BaseName . '.json'
-    let HTMLErrors = systemlist("jq '.messages[] | select( .subType | startswith(\"error\") or startswith(\"warning\") )|.message' < " . BaseName . ".json")
-    let HTMLErrorLines = systemlist("jq '.messages[] | select( .subType | startswith(\"error\") or startswith(\"warning\") )|.lastLine' < " . BaseName . ".json")
+    let HTMLErrors = systemlist("jq '.messages[] | select( .type | startswith(\"error\") or startswith(\"info\") )|.message' < " . BaseName . ".json")
+    let HTMLErrorLines = systemlist("jq '.messages[] | select( .type | startswith(\"error\") or startswith(\"info\") )|.lastLine' < " . BaseName . ".json")
     let counter = 0
      if len(HTMLErrors) > 0
          for HTMLError in HTMLErrors
