@@ -37,6 +37,7 @@ function! CSS_Val(file, basename)
     let file = a:file
     let basename = a:basename
     if &ft != "css"
+        echoerr "This is not valid CSS"
         return
     endif
     execute "!curl -sF \"file=@" . file . "; type=text/css\" -F output=json warning=0 profile=css3 \"https://jigsaw.w3.org/css-validator/validator\" > " . basename . ".json"
@@ -61,6 +62,7 @@ function! HTML_Val(file, basename)
     let BaseName = a:basename
     let LAMPSite = ""
     if index(validFTs, &ft) == -1
+        echoerr "This is not valid HTML"
         return
     endif
     if &ft == "php"
