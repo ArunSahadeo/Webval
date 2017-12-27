@@ -41,8 +41,8 @@ function! CSS_Val(file, basename)
         return
     endif
     execute "!curl -sF \"file=@" . file . "; type=text/css\" -F output=json warning=0 profile=css3 \"https://jigsaw.w3.org/css-validator/validator\" > " . basename . ".json"
-    let CSSErrors = systemlist("jq '.cssvalidation.errors[] | .message' < " . basename . ".json")
-    let CSSErrorLines = systemlist("jq '.cssvalidation.errors[] | .line' < " . basename . ".json")
+    let CSSErrors = systemlist("jq '.cssvalidation.errors[].message, .cssvalidation.warnings[].message' < " . basename . ".json")
+    let CSSErrorLines = systemlist("jq '.cssvalidation.errors[].line, .cssvalidation.warnings[].line' < " . basename . ".json")
     let counter = 0
      if len(CSSErrors) > 0
          for CSSError in CSSErrors
