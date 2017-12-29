@@ -27,3 +27,10 @@ Place the plugin file somewhere under your `~/.vim` folder and add the **followi
 runtime /path/to/webval.vim`
 
 Note: you will also need `jq` installed and available on your `$PATH` variable.
+
+### Commands:
+
+```bash
+:ValiHTML
+:ValiCSS
+```
