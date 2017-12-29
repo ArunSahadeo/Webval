@@ -13,6 +13,14 @@ endif
 
 let g:loaded_webval = 1
 
+function! PurgeFiles(BaseName)
+    if &ft == "php"
+        execute "!rm " . a:BaseName . ".html && rm " . a:BaseName . ".json"
+    else
+        execute "!rm " . a:BaseName . ".json"
+    endif
+endfunction
+
 " Section: Find PHP site
 
 function! FindPHPSite(php)
@@ -106,3 +114,4 @@ let BaseName = expand('%:r')
 
 command ValiCSS call CSS_Val(fileName, BaseName)
 command ValiHTML call HTML_Val(fileName, BaseName)
+command PurgeFiles call PurgeFiles(BaseName)
