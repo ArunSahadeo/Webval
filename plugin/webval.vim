@@ -31,9 +31,7 @@ function! FindPHPSite(php)
     " Get status code from site
     for PHPSite in PHPSites
         let statusCode = system('curl -sI ' . PHPSite . '/' . file . ' | head -1 | grep -oP "\d{3}"')
-        if statusCode != 200
-            continue
-        elseif statusCode == 200
+        if statusCode == 200
             return PHPSite
         else
             continue
