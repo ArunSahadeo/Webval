@@ -48,10 +48,13 @@ function! CSS_Val(file, basename)
         echom "This is not valid CSS"
         return
     endif
+
     execute "!curl -sF \"file=@" . file . "; type=text/css\" -F output=json warning=0 profile=css3 \"https://jigsaw.w3.org/css-validator/validator\" > " . basename . ".json"
+
     let CSSErrors = systemlist("jq '.cssvalidation.errors[].message, .cssvalidation.warnings[].message' < " . basename . ".json")
     let CSSErrorLines = systemlist("jq '.cssvalidation.errors[].line, .cssvalidation.warnings[].line' < " . basename . ".json")
     let counter = 0
+
      if len(CSSErrors) > 0
          for CSSError in CSSErrors
              echoerr "Found on line " . CSSErrorLines[counter] . " " . CSSError
@@ -60,24 +63,29 @@ function! CSS_Val(file, basename)
      else
          echom "You have no errors."
      endif
+
 endfunction
 
 " Section: HTML validate method
 
 function! HTML_Val(file, basename)
+    
     let validFTs = ["html", "htm", "xhtml", "php"]
     let file = a:file
     let BaseName = a:basename
     let LAMPSite = ""
+
     if index(validFTs, &ft) == -1
         echom "This is not valid HTML"
         return
     endif
+    
     if &ft == "php"
         let commonBaseNames = ["index", "contact"] 
         let currentPath = getcwd()
+
         if match(currentPath, "wp-content") != -1
-            echoerr "Sorry, we do not support Wordpress"
+            echom "Sorry, we do not support Wordpress"
             return
         endif
         
@@ -94,10 +102,13 @@ function! HTML_Val(file, basename)
             return
         endif
     endif
+
     execute '!curl -H "Content-Type: text/html; charset=utf-8" --data-binary @' . BaseName . '.html "https://validator.w3.org/nu/?out=json" > ' . BaseName . '.json'
+
     let HTMLErrors = systemlist("jq '.messages[] | select( .type | startswith(\"error\") or startswith(\"info\") )|.message' < " . BaseName . ".json")
     let HTMLErrorLines = systemlist("jq '.messages[] | select( .type | startswith(\"error\") or startswith(\"info\") )|.lastLine' < " . BaseName . ".json")
     let counter = 0
+
      if len(HTMLErrors) > 0
          for HTMLError in HTMLErrors
              echoerr "Found on line " . HTMLErrorLines[counter] . " " . HTMLError
@@ -106,6 +117,7 @@ function! HTML_Val(file, basename)
      else
          echom "You have no errors."
      endif
+
 endfunction
 
 let fileName = expand('%:t')
