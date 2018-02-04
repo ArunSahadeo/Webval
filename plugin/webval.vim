@@ -99,6 +99,7 @@ function! HTML_Val(file, basename)
         if len(LAMPSite) > 0
             execute "!wget -O " . BaseName . ".html " . LAMPSite . "/" . file
         else
+            echoerr "Sorry, we could not find a web address for this file"
             return
         endif
     endif
